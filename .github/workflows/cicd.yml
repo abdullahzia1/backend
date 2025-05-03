@@ -5,24 +5,29 @@ on:
     branches:
       - main
 
-Jobs:
+jobs:
   build:
-  runs-on: ubuntu-latest
-  steps:
-    - name: Checkout Source
-      uses: actions/checkout@v4
-    - name: Login to docker hub
-      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-    - name: Build Docker Image
-      run: docker build -t abdullahzia1/backend .
-    - name: Publish Image to docker hub
-      run: docker push abdullahzia1/backend:latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker Image
+        run: docker build -t abdullahzia1/backend .
+
+      - name: Publish Image to Docker Hub
+        run: docker push abdullahzia1/backend:latest
+
   deploy:
     needs: build
     runs-on: self-hosted
     steps:
-      - name: Pull image from docker hub
+      - name: Pull image from Docker Hub
         run: docker pull abdullahzia1/backend:latest
+
       - name: Run Docker Container
         run: |
           docker run -d -p 5000:5000 --name backend-container \
