@@ -1,0 +1,51 @@
+name: Deploy Node Application
+
+on:
+  push:
+    branches:
+      - main
+
+Jobs:
+  build:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout Source
+      uses: actions/checkout@v4
+    - name: Login to docker hub
+      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - name: Build Docker Image
+      run: docker build -t abdullahzia1/backend .
+    - name: Publish Image to docker hub
+      run: docker push abdullahzia1/backend:latest
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Pull image from docker hub
+        run: docker pull abdullahzia1/backend:latest
+      - name: Run Docker Container
+        run: |
+          docker run -d -p 5000:5000 --name backend-container \
+            -e PORT='${{ secrets.PORT }}' \
+            -e JWT_SECRET='${{ secrets.JWT_SECRET }}' \
+            -e PAYPAL_CLIENT_ID='${{ secrets.PAYPAL_CLIENT_ID }}' \
+            -e NODE_ENV='${{ secrets.NODE_ENV }}' \
+            -e MONGO_URI='${{ secrets.MONGO_URI }}' \
+            -e FIREBASE_SERVICE_auth_provider_x509_cert_url='${{ secrets.FIREBASE_SERVICE_auth_provider_x509_cert_url }}' \
+            -e FIREBASE_SERVICE_auth_uri='${{ secrets.FIREBASE_SERVICE_auth_uri }}' \
+            -e FIREBASE_SERVICE_client_email='${{ secrets.FIREBASE_SERVICE_client_email }}' \
+            -e FIREBASE_SERVICE_client_id='${{ secrets.FIREBASE_SERVICE_client_id }}' \
+            -e FIREBASE_SERVICE_client_x509_cert_url='${{ secrets.FIREBASE_SERVICE_client_x509_cert_url }}' \
+            -e FIREBASE_SERVICE_private_key='${{ secrets.FIREBASE_SERVICE_private_key }}' \
+            -e FIREBASE_SERVICE_private_key_id='${{ secrets.FIREBASE_SERVICE_private_key_id }}' \
+            -e FIREBASE_SERVICE_project_id='${{ secrets.FIREBASE_SERVICE_project_id }}' \
+            -e FIREBASE_SERVICE_token_uri='${{ secrets.FIREBASE_SERVICE_token_uri }}' \
+            -e FIREBASE_SERVICE_type='${{ secrets.FIREBASE_SERVICE_type }}' \
+            -e FIREBASE_SERVICE_universe_domain='${{ secrets.FIREBASE_SERVICE_universe_domain }}' \
+            -e FIREBASECONFIG_apiKey='${{ secrets.FIREBASECONFIG_apiKey }}' \
+            -e FIREBASECONFIG_appId='${{ secrets.FIREBASECONFIG_appId }}' \
+            -e FIREBASECONFIG_authDomain='${{ secrets.FIREBASECONFIG_authDomain }}' \
+            -e FIREBASECONFIG_messagingSenderId='${{ secrets.FIREBASECONFIG_messagingSenderId }}' \
+            -e FIREBASECONFIG_projectId='${{ secrets.FIREBASECONFIG_projectId }}' \
+            -e FIREBASECONFIG_storageBucket='${{ secrets.FIREBASECONFIG_storageBucket }}' \
+            abdullahzia1/backend
