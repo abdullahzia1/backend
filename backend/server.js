@@ -9,12 +9,14 @@ import userRoutes from "./routes/userRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import { uploadMiddleware, uploadFile } from "./routes/uploadRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
-
+import cors from "cors";
 const port = process.env.PORT || 5001;
 
 connectDB();
 
 const app = express();
+
+app.use(cors({origin:"*"}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
